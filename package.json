@@ -24,12 +24,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "custom-deploy": "node pages.js"
+    "eject": "react-scripts eject"
   },
   "engines": {
-    "npm": "^9.8.1",
-    "node": "^18.12.1"
+    "npm": "^9.6.7",
+    "node": "^18.17.0"
   },
   "eslintConfig": {
     "extends": [
