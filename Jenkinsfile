@@ -23,8 +23,8 @@ pipeline {
             steps {
                 // Use 'withCredentials' to provide AWS credentials to the 'sh' step
                 withCredentials([
-                    awsAccessKey(credentialsId: 'aws', variable: 'AWS_ACCESS_KEY_ID'),
-                    awsSecretKey(credentialsId: 'aws', variable: 'AWS_SECRET_ACCESS_KEY')
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     // Now you can use the AWS CLI with the provided credentials
                     sh 'aws --version'
@@ -36,8 +36,8 @@ pipeline {
             steps {
                 // Use 'withCredentials' to provide AWS credentials to the 'sh' step
                 withCredentials([
-                    awsAccessKey(credentialsId: 'aws', variable: 'AWS_ACCESS_KEY_ID'),
-                    awsSecretKey(credentialsId: 'aws', variable: 'AWS_SECRET_ACCESS_KEY')
+                    string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
                     // Use AWS CLI to create the ECR repository and capture the repository URL
                     script {
