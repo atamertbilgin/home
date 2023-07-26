@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         // Set your GitHub repository URL and AWS ECR repository name
         GITHUB_REPO_URL = "https://github.com/atamertbilgin/home.git"
@@ -9,8 +9,9 @@ pipeline {
         AWS_REGION = "us-east-1"
         ECR_URL = "your-aws-account-id.dkr.ecr.your-aws-region.amazonaws.com"
         GITHUB_CREDENTIALS_ID = 'github'
+        DOCKER_PATH = "/usr/local/bin/docker"
     }
-    
+
     stages {
         stage('Clone GitHub Repo') {
             steps {
@@ -24,7 +25,7 @@ pipeline {
                 // Navigate to the directory containing the Dockerfile
                 dir('path/to/dockerfile/directory') {
                     // Build the Docker image using the Dockerfile in the current directory
-                    sh 'docker build -t my-docker-image .'
+                    sh "${DOCKER_PATH} build -t my-docker-image ."
                 }
             }
         }
