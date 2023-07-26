@@ -10,6 +10,7 @@ pipeline {
         GITHUB_CREDENTIALS_ID = 'github'
         DOCKER_PATH = "/usr/local/bin/docker"
         AWS_PATH = "/usr/local/bin/aws"
+        JQ_PATH = "/opt/homebrew/bin/jq"
     }
 
     stages {
@@ -53,7 +54,7 @@ pipeline {
                 // Dynamically create the ECR_URL after checking if the repository exists
                 script {
                     def ecrUrlResult = sh(
-                        script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION} | ${AWS_PATH} jq -r '.repositories[0].repositoryUri'",
+                        script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION} | ${JQ_PATH} -r '.repositories[0].repositoryUri'",
                         returnStdout: true
                     )
                     ECR_URL = ecrUrlResult.trim()
