@@ -9,7 +9,6 @@ pipeline {
         AWS_REGION = "us-east-1"
         ECR_URL = "your-aws-account-id.dkr.ecr.your-aws-region.amazonaws.com"
         GITHUB_CREDENTIALS_ID = 'github'
-        PATH = "/usr/local/bin/aws"
     }
     
     stages {
@@ -21,10 +20,6 @@ pipeline {
         }
         
         stage('Create ECR Repo') {
-            environment {
-                // Update the PATH environment variable to include AWS CLI location
-                PATH = "/usr/local/bin:$PATH"
-            }
             steps {
                 // Use AWS CLI to create the ECR repository and capture the repository URL
                 script {
