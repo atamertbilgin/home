@@ -30,17 +30,3 @@ pipeline {
                 }
             }
         }
-        
-        stage('Build Docker Image') {
-            steps {
-                // Build the Docker image and tag it with the ECR URL
-                script {
-                    docker.withRegistry(ECR_REPO_URL, 'ecr-credentials') {
-                        def imageName = "${ECR_REPO_NAME}:latest"
-                        docker.build(imageName, '.').push()
-                    }
-                }
-            }
-        }
-    }
-}
