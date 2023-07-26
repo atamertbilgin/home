@@ -21,18 +21,31 @@ pipeline {
 
         stage('Check AWS CLI') {
             steps {
-                sh 'aws --version'
+                // Use 'withCredentials' to provide AWS credentials to the 'sh' step
+                withCredentials([
+                    awsAccessKey(credentialsId: 'aws', variable: 'AWS_ACCESS_KEY_ID'),
+                    awsSecretKey(credentialsId: 'aws', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    // Now you can use the AWS CLI with the provided credentials
+                    sh 'aws --version'
+                }
             }
         }
         
         stage('Create ECR Repo') {
             steps {
-                // Use AWS CLI to create the ECR repository and capture the repository URL
-                script {
-                    ECR_REPO_URL = sh(
-                        script: "aws ecr create-repository --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
-                        returnStdout: true
-                    ).trim()
+                // Use 'withCredentials' to provide AWS credentials to the 'sh' step
+                withCredentials([
+                    awsAccessKey(credentialsId: 'aws', variable: 'AWS_ACCESS_KEY_ID'),
+                    awsSecretKey(credentialsId: 'aws', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    // Use AWS CLI to create the ECR repository and capture the repository URL
+                    script {
+                        ECR_REPO_URL = sh(
+                            script: "AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY} aws ecr create-repository --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
+                            returnStdout: true
+                        ).trim()
+                    }
                 }
             }
         }
