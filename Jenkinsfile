@@ -18,6 +18,19 @@ pipeline {
                 git branch: 'main', credentialsId: GITHUB_CREDENTIALS_ID, url: GITHUB_REPO_URL
             }
         }
+
+        stage('Check AWS CLI') {
+            steps {
+                // Use 'withCredentials' to provide AWS credentials to the 'sh' step
+                withCredentials([
+                    awsAccessKey(credentialsId: 'aws', variable: 'AWS_ACCESS_KEY_ID'),
+                    awsSecretKey(credentialsId: 'aws', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    // Now you can use the AWS CLI with the provided credentials
+                    sh 'aws --version'
+                }
+            }
+        }
         
         stage('Create ECR Repo') {
             steps {
