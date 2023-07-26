@@ -21,6 +21,10 @@ pipeline {
         }
         
         stage('Create ECR Repo') {
+            environment {
+                // Update the PATH environment variable to include AWS CLI location
+                PATH = "/usr/local/bin:$PATH"
+            }
             steps {
                 // Use AWS CLI to create the ECR repository and capture the repository URL
                 script {
