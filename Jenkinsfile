@@ -9,6 +9,7 @@ pipeline {
         AWS_REGION = "us-east-1"
         ECR_URL = "your-aws-account-id.dkr.ecr.your-aws-region.amazonaws.com"
         GITHUB_CREDENTIALS_ID = 'github'
+        PATH = "/usr/local/bin/aws"
     }
     
     stages {
