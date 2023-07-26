@@ -63,5 +63,7 @@ pipeline {
                 sh "${DOCKER_PATH} push ${ecrRepoUrl}:latest"
             }
         }
+
+    }
 }
 
