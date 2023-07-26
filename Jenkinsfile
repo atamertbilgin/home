@@ -5,8 +5,9 @@ pipeline {
         // Set your GitHub repository URL and AWS ECR repository name
         GITHUB_REPO_URL = "https://github.com/atamertbilgin/home.git"
         ECR_REPO_NAME = "abilgin-portfolio-image"
-        // Set your AWS region (ECR_URL will be dynamically created later)
+        // Set your AWS region and ECR URL
         AWS_REGION = "us-east-1"
+        ECR_URL = "your-aws-account-id.dkr.ecr.your-aws-region.amazonaws.com"
         GITHUB_CREDENTIALS_ID = 'github'
         DOCKER_PATH = "/usr/local/bin/docker"
         AWS_PATH = "/usr/local/bin/aws"
@@ -30,17 +31,16 @@ pipeline {
             }
         }
 
-        stage('Check ECR Repository') {
+        stage('Create ECR Repository') {
             steps {
                 // Check if the ECR repository already exists
                 script {
-                    def ecrRepoOutput = sh(
+                    def ecrRepoExists = sh(
                         script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
-                        returnStdout: true
+                        returnStatus: true
                     )
-                    def ecrRepoJson = readJSON(text: ecrRepoOutput)
-                    if (ecrRepoJson.repositories) {
-                        echo "ECR repository already exists."
+                    if (ecrRepoExists == 0) {
+                        echo "ECR repository already exists. Skipping creation."
                     } else {
                         // Use the AWS CLI to create the ECR repository
                         sh "${AWS_PATH} ecr create-repository --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}"
@@ -51,16 +51,6 @@ pipeline {
 
         stage('Push to ECR') {
             steps {
-                // Dynamically create the ECR_URL after checking if the repository exists
-                script {
-                    def ecrRepoOutput = sh(
-                        script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
-                        returnStdout: true
-                    )
-                    def ecrRepoJson = readJSON(text: ecrRepoOutput)
-                    ECR_URL = ecrRepoJson.repositories[0].repositoryUri
-                }
-
                 // Authenticate Docker with ECR
                 sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${ECR_URL}"
 
@@ -73,3 +63,4 @@ pipeline {
         }
     }
 }
+
