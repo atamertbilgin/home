@@ -10,6 +10,7 @@ pipeline {
         ECR_URL = "your-aws-account-id.dkr.ecr.your-aws-region.amazonaws.com"
         GITHUB_CREDENTIALS_ID = 'github'
         DOCKER_PATH = "/usr/local/bin/docker"
+        AWS_PATH = "/usr/local/bin/aws"
     }
 
     stages {
@@ -27,6 +28,13 @@ pipeline {
                 // Build the Docker image using the Dockerfile in the workspace root directory
                 sh "${DOCKER_PATH} build -t my-docker-image ."
             }
+        }
+    }
+
+    stage('Create ECR Repository') {
+        steps {
+            // Use the AWS CLI to create the ECR repository
+            sh "${AWS_PATH} ecr create-repository --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}"
         }
     }
 
