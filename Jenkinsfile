@@ -7,7 +7,7 @@ pipeline {
         ECR_REPO_NAME = "abilgin-portfolio-image"
         // Set your AWS region and ECR URL
         AWS_REGION = "us-east-1"
-        AWS_ACCOUNT_ID = "your-aws-account-id" // Replace with your AWS account ID
+        AWS_ACCOUNT_ID = "611289949201" // Replace with your AWS account ID
         ECR_URL = "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
         GITHUB_CREDENTIALS_ID = 'github' // Replace with your GitHub credentials ID
         DOCKER_PATH = "/usr/local/bin/docker"
@@ -52,16 +52,14 @@ pipeline {
 
         stage('Push to ECR') {
             steps {
-                // Authenticate Docker with ECR
-                withCredentials([string(credentialsId: 'ecr-credentials', variable: 'ECR_CREDENTIALS')]) {
-                    sh "echo $ECR_CREDENTIALS | ${DOCKER_PATH} login --username AWS --password-stdin ${ECR_URL}"
-                }
+                // Authenticate Docker with ECR using AWS CLI credentials configured on Jenkins machine
+                sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
                 // Tag the Docker image for ECR
-                sh "${DOCKER_PATH} tag my-docker-image:latest ${ECR_URL}:latest"
+                sh "${DOCKER_PATH} tag my-docker-image:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
 
                 // Push the Docker image to ECR
-                sh "${DOCKER_PATH} push ${ECR_URL}:latest"
+                sh "${DOCKER_PATH} push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
             }
         }
     }
