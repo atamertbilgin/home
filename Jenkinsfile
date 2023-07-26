@@ -10,7 +10,6 @@ pipeline {
         GITHUB_CREDENTIALS_ID = 'github'
         DOCKER_PATH = "/usr/local/bin/docker"
         AWS_PATH = "/usr/local/bin/aws"
-        JQ_PATH = "/opt/homebrew/bin/jq"
     }
 
     stages {
@@ -35,11 +34,12 @@ pipeline {
             steps {
                 // Check if the ECR repository already exists
                 script {
-                    def ecrRepoExists = sh(
+                    def ecrRepoOutput = sh(
                         script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
-                        returnStatus: true
+                        returnStdout: true
                     )
-                    if (ecrRepoExists == 0) {
+                    def ecrRepoJson = readJSON(text: ecrRepoOutput)
+                    if (ecrRepoJson.repositories) {
                         echo "ECR repository already exists."
                     } else {
                         // Use the AWS CLI to create the ECR repository
@@ -53,11 +53,12 @@ pipeline {
             steps {
                 // Dynamically create the ECR_URL after checking if the repository exists
                 script {
-                    def ecrUrlResult = sh(
-                        script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION} | ${JQ_PATH} -rc '.[0].repositoryUri'",
+                    def ecrRepoOutput = sh(
+                        script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
                         returnStdout: true
                     )
-                    ECR_URL = ecrUrlResult.trim()
+                    def ecrRepoJson = readJSON(text: ecrRepoOutput)
+                    ECR_URL = ecrRepoJson.repositories[0].repositoryUri
                 }
 
                 // Authenticate Docker with ECR
