@@ -19,5 +19,15 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                // Navigate to the directory containing the Dockerfile
+                dir('path/to/dockerfile/directory') {
+                    // Build the Docker image using the Dockerfile in the current directory
+                    sh 'docker build -t my-docker-image .'
+                }
+            }
+        }
+
     }
 }
