@@ -15,7 +15,7 @@ pipeline {
         stage('Clone GitHub Repo') {
             steps {
                 // Clone the GitHub repository to the workspace
-                git branch: 'main', url: GITHUB_REPO_URL
+                git branch: 'main', credentialsId: GITHUB_CREDENTIALS_ID, url: GITHUB_REPO_URL
             }
         }
         
