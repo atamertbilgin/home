@@ -54,13 +54,14 @@ pipeline {
                 // Authenticate Docker with ECR
                 sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${ECR_URL}"
 
+                def ecrRepoUrl = "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
+
                 // Tag the Docker image for ECR
-                sh "${DOCKER_PATH} tag my-docker-image:latest ${ECR_URL}/${ECR_REPO_NAME}:latest"
+                sh "${DOCKER_PATH} tag my-docker-image:latest ${ecrRepoUrl}:latest"
 
                 // Push the Docker image to ECR
-                sh "${DOCKER_PATH} push ${ECR_URL}/${ECR_REPO_NAME}:latest"
+                sh "${DOCKER_PATH} push ${ecrRepoUrl}:latest"
             }
         }
-    }
 }
 
