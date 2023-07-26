@@ -18,6 +18,12 @@ pipeline {
                 git branch: 'main', credentialsId: GITHUB_CREDENTIALS_ID, url: GITHUB_REPO_URL
             }
         }
+
+        stage('Check AWS CLI') {
+            steps {
+                sh 'aws --version'
+            }
+        }
         
         stage('Create ECR Repo') {
             steps {
