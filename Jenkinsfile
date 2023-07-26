@@ -8,7 +8,7 @@ pipeline {
         // Set your AWS region and ECR URL
         AWS_REGION = "us-east-1"
         AWS_ACCOUNT_ID = "your-aws-account-id" // Replace with your AWS account ID
-        ECR_URL = "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        ECR_URL = "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
         GITHUB_CREDENTIALS_ID = 'github' // Replace with your GitHub credentials ID
         DOCKER_PATH = "/usr/local/bin/docker"
         AWS_PATH = "/usr/local/bin/aws"
@@ -53,17 +53,15 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 // Authenticate Docker with ECR
-                sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${ECR_URL}"
-
-                script {
-                    def ecrRepoUrl = "${ECR_URL}/${ECR_REPO_NAME}"
-
-                    // Tag the Docker image for ECR
-                    sh "${DOCKER_PATH} tag my-docker-image:latest ${ecrRepoUrl}:latest"
-
-                    // Push the Docker image to ECR
-                    sh "${DOCKER_PATH} push ${ecrRepoUrl}:latest"
+                withCredentials([string(credentialsId: 'ecr-credentials', variable: 'ECR_CREDENTIALS')]) {
+                    sh "echo $ECR_CREDENTIALS | ${DOCKER_PATH} login --username AWS --password-stdin ${ECR_URL}"
                 }
+
+                // Tag the Docker image for ECR
+                sh "${DOCKER_PATH} tag my-docker-image:latest ${ECR_URL}:latest"
+
+                // Push the Docker image to ECR
+                sh "${DOCKER_PATH} push ${ECR_URL}:latest"
             }
         }
     }
