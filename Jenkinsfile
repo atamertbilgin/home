@@ -12,6 +12,7 @@ pipeline {
         GITHUB_CREDENTIALS_ID = 'github' // Replace with your GitHub credentials ID
         DOCKER_PATH = "/usr/local/bin/docker"
         AWS_PATH = "/usr/local/bin/aws"
+        TERRAFORM_PATH = "/opt/homebrew/bin/terraform"
     }
 
     stages {
@@ -72,6 +73,42 @@ pipeline {
                     }
                 }
             }
+        }
+
+            stage('Terraform Init') {
+        steps {
+            script {
+            // Change directory to the workspace where main.tf is present
+            dir("${WORKSPACE}") {
+                // Execute terraform init using the provided binary path
+                sh "${TERRAFORM_PATH} init"
+            }
+            }
+        }
+        }
+
+        stage('Terraform Plan') {
+        steps {
+            script {
+            // Change directory to the workspace where main.tf is present
+            dir("${WORKSPACE}") {
+                // Execute terraform plan and save the output to a plan file
+                sh "${TERRAFORM_PATH} plan -out=tfplan"
+            }
+            }
+        }
+        }
+
+        stage('Terraform Apply') {
+        steps {
+            script {
+            // Change directory to the workspace where main.tf is present
+            dir("${WORKSPACE}") {
+                // Execute terraform apply using the plan file generated from the plan stage
+                sh "${TERRAFORM_PATH} apply tfplan"
+            }
+            }
+        }
         }
     }
 }
