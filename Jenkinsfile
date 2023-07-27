@@ -55,11 +55,22 @@ pipeline {
                 // Authenticate Docker with ECR using AWS CLI credentials configured on Jenkins machine
                 sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-                // Tag the Docker image for ECR
-                sh "${DOCKER_PATH} tag my-docker-image:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
+                // Check if the image with the "latest" tag exists in the ECR repository
+                script {
+                    def imageExists = sh(
+                        script: "${AWS_PATH} ecr describe-images --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION} --image-ids imageTag=latest",
+                        returnStatus: true
+                    )
+                    if (imageExists == 0) {
+                        echo "Image with 'latest' tag already exists in ECR. Skipping push."
+                    } else {
+                        // Tag the Docker image for ECR
+                        sh "${DOCKER_PATH} tag my-docker-image:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
 
-                // Push the Docker image to ECR
-                sh "${DOCKER_PATH} push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
+                        // Push the Docker image to ECR
+                        sh "${DOCKER_PATH} push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
+                    }
+                }
             }
         }
     }
