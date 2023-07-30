@@ -53,6 +53,20 @@ pipeline {
             }
         }
 
+        stage('Push Docker Image to ECR') {
+            steps {
+                // Authenticate Docker with ECR using AWS CLI
+                sh("${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com")
+
+                // Tag the built Docker image with the ECR repository URL
+                sh("${DOCKER_PATH} tag abilgin-portfolio-image ${ECR_URL}:latest")
+
+                // Push the Docker image to ECR
+                sh("${DOCKER_PATH} push ${ECR_URL}:latest")
+            }
+        }
+
+
 
         stage('Terraform Init') {
             steps {
