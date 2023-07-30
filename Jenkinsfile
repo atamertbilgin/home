@@ -15,8 +15,8 @@ pipeline {
         TERRAFORM_PATH = "/opt/homebrew/bin/terraform"
         SSH_PATH = "/usr/bin/ssh"
         SLEEP_PATH = "/bin/sleep"
-        AWS_ACCESS_KEY_ID = aws configure get aws_access_key_id
-        AWS_SECRET_ACCESS_KEY = aws configure get aws_secret_access_key
+        AWS_ACCESS_KEY_ID = ""
+        AWS_SECRET_ACCESS_KEY = ""
     }
 
     stages {
