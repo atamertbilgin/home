@@ -15,6 +15,8 @@ pipeline {
         TERRAFORM_PATH = "/opt/homebrew/bin/terraform"
         SSH_PATH = "/usr/bin/ssh"
         SLEEP_PATH = "/bin/sleep"
+        AWS_ACCESS_KEY_ID = aws configure get aws_access_key_id
+        AWS_SECRET_ACCESS_KEY = aws configure get aws_secret_access_key
     }
 
     stages {
@@ -22,6 +24,15 @@ pipeline {
             steps {
                 // Clone the GitHub repository to the workspace
                 git branch: 'main', credentialsId: GITHUB_CREDENTIALS_ID, url: GITHUB_REPO_URL
+            }
+        }
+
+        stage('Set AWS Credentials') {
+            steps {
+                script {
+                    AWS_ACCESS_KEY_ID = sh(script: '${AWS_PATH} configure get aws_access_key_id', returnStdout: true).trim()
+                    AWS_SECRET_ACCESS_KEY = sh(script: '${AWS_PATH} configure get aws_secret_access_key', returnStdout: true).trim()
+                }
             }
         }
 
@@ -196,6 +207,20 @@ ports:
             }
         }
 
+        stage('Pass AWS Credentials to EC2') {
+            steps {
+                script {
+                    // SSH into the EC2 instance and execute commands remotely
+                    sh """
+                        ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                        echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> ~/.bashrc
+                        echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> ~/.bashrc
+                        source ~/.bashrc
+                        '
+                    """
+                }
+            }
+        }
 
         stage('Terraform Destroy (Manual Approval)') {
             steps {

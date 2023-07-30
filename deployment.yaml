@@ -2,23 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: your-deployment-name
-  labels:
-    app: your-app-label
 spec:
-  replicas: 2  # Number of desired replicas
+  replicas: 2
   selector:
     matchLabels:
-      app: your-app-label
+      app: my-web-app
   template:
     metadata:
       labels:
-        app: your-app-label
+        app: my-web-app
     spec:
       containers:
         - name: your-container-name
-          image: <your-ecr-repository-uri>:<tag>
+          image: 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
           ports:
-            - containerPort: 80  # Expose the container port your application listens on
+            - containerPort: 80
+      imagePullSecrets:
+        - name: ecr-credentials
 
 ---
 apiVersion: v1
