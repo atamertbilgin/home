@@ -117,14 +117,26 @@ pipeline {
         stage('Connect to EC2 Instance') {
             steps {
                 // SSH into the EC2 instance and execute commands remotely
-                sh "${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} 'echo Hello from Jenkins'"
-                // Replace '/path/to/your/ssh/private/key.pem' with the actual path to your SSH private key file.
-
-                // You can execute other commands on the EC2 instance using SSH as needed.
-                // For example, deploying your application, running setup scripts, etc.
+                sh "${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '"
+                    + 'sudo yum update -y'
+                    + ' && sudo dnf update'
+                    + ' && sudo dnf install -y docker'
+                    + ' && sudo systemctl start docker'
+                    + ' && sudo systemctl enable docker'
+                    + ' && sudo usermod -aG docker $USER'
+                    + ' && newgrp docker'
+                    + ' && sudo yum install git -y'
+                    + ' && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"'
+                    + ' && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl'
+                    + ' && chmod +x kubectl'
+                    + ' && mkdir -p ~/.local/bin'
+                    + ' && mv ./kubectl ~/.local/bin/kubectl'
+                    + ' && curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64'
+                    + ' && sudo install minikube-linux-amd64 /usr/local/bin/minikube'
+                    + ' && sudo usermod -aG docker $USER && newgrp docker'
+                    + ' && minikube start"'
             }
         }
-
 
 
         stage('Terraform Destroy (Manual Approval)') {
