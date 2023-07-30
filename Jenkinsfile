@@ -222,6 +222,20 @@ ports:
             }
         }
 
+        stage('Connect to EC2 Instance') {
+            steps {
+                // Sleep for 20 seconds
+                sh """${SLEEP_PATH} 20"""
+
+                // SSH into the EC2 instance and execute commands remotely
+                sh """
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                    sudo aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID;
+                    sudo aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
+                """
+            }
+        }
+
         stage('Terraform Destroy (Manual Approval)') {
             steps {
                 script {
