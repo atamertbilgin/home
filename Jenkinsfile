@@ -13,6 +13,7 @@ pipeline {
         DOCKER_PATH = "/usr/local/bin/docker"
         AWS_PATH = "/usr/local/bin/aws"
         TERRAFORM_PATH = "/opt/homebrew/bin/terraform"
+        SSH_PATH = "/usr/bin/ssh"
     }
 
     stages {
@@ -116,7 +117,7 @@ pipeline {
         stage('Connect to EC2 Instance') {
             steps {
                 // SSH into the EC2 instance and execute commands remotely
-                sh "ssh -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} 'echo Hello from Jenkins'"
+                sh "${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} 'echo Hello from Jenkins'"
                 // Replace '/path/to/your/ssh/private/key.pem' with the actual path to your SSH private key file.
 
                 // You can execute other commands on the EC2 instance using SSH as needed.
