@@ -117,6 +117,7 @@ pipeline {
         stage('Connect to EC2 Instance') {
             steps {
         // SSH into the EC2 instance and execute commands remotely
+                sh 'sleep 20'
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
                     sudo yum update -y
@@ -138,7 +139,7 @@ pipeline {
                     && minikube start'
                 """
              }
-        }
+    }
 
 
 
