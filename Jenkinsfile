@@ -126,26 +126,26 @@ pipeline {
                 script {
                     def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
                     sh """echo 'apiVersion: apps/v1
-    kind: Deployment
+kind: Deployment
+metadata:
+name: atamert-bilgin-portfolio
+labels:
+    app: my-web-app
+spec:
+replicas: 2  # Number of desired replicas
+selector:
+    matchLabels:
+    app: my-web-app
+template:
     metadata:
-    name: atamert-bilgin-portfolio
     labels:
         app: my-web-app
     spec:
-    replicas: 2  # Number of desired replicas
-    selector:
-        matchLabels:
-        app: my-web-app
-    template:
-        metadata:
-        labels:
-            app: my-web-app
-        spec:
-        containers:
-            - name: your-container-name
-            image: ${ecrRepoUriWithTag}
-            ports:
-                - containerPort: 80  # Expose the container port your application listens on
+    containers:
+        - name: abilgin-portfolio-image
+        image: ${ecrRepoUriWithTag}
+        ports:
+            - containerPort: 80  # Expose the container port your application listens on
 ---
 apiVersion: v1
 kind: Service

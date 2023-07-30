@@ -5,33 +5,7 @@ provider "aws" {
 resource "aws_security_group" "k8s_sg" {
   name_prefix = "k8s-sg-"
 
-  ingress {
-    from_port   = 22   # SSH port
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow SSH access from anywhere (this can be restricted to your IP later)
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
-  }
+  # ... (ingress and egress rules)
 }
 
 resource "aws_instance" "k8s_instance" {
@@ -48,7 +22,6 @@ resource "aws_instance" "k8s_instance" {
 
   # Add IAM instance profile to associate with the EC2 instance
   iam_instance_profile = aws_iam_instance_profile.k8s_instance_profile.name
-
 }
 
 # Create the IAM instance profile and associate it with the "AmazonEC2FullAccess" policy
@@ -58,7 +31,7 @@ resource "aws_iam_instance_profile" "k8s_instance_profile" {
   role = aws_iam_role.k8s_instance_role.name
 }
 
-# Attach the "AmazonEC2FullAccess" policy to the IAM role
+# Attach the "AmazonEC2FullAccess" managed policy to the IAM role
 resource "aws_iam_role" "k8s_instance_role" {
   name = "k8s-instance-role"
 
@@ -76,7 +49,10 @@ resource "aws_iam_role" "k8s_instance_role" {
   })
 
   # Attach the "AmazonEC2FullAccess" managed policy to the IAM role
-  managed_policy_arns = ["arn:aws:iam::aws:policy/AmazonEC2FullAccess"]
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+  ]
 }
 
 output "k8s_public_ip" {
