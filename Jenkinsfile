@@ -117,7 +117,7 @@ pipeline {
                     // Change directory to the workspace where main.tf is present
                     dir("${WORKSPACE}") {
                         // Execute terraform destroy and save the output to a plan file
-                        sh "${TERRAFORM_PATH} destroy -auto-approve -var 'aws_region=${AWS_REGION}'"
+                        sh "${TERRAFORM_PATH} destroy -auto-approve"
                     }
                 }
             }
