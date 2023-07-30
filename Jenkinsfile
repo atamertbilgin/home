@@ -146,19 +146,19 @@ pipeline {
             image: ${ecrRepoUriWithTag}
             ports:
                 - containerPort: 80  # Expose the container port your application listens on
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-    name: your-service-name
-    spec:
-    type: LoadBalancer
-    selector:
-        app: my-web-app
-    ports:
-        - protocol: TCP
-        port: 80
-        targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+name: your-service-name
+spec:
+type: LoadBalancer
+selector:
+    app: my-web-app
+ports:
+    - protocol: TCP
+    port: 80
+    targetPort: 80
     ' > deployment.yaml"""
                             }
                         }
