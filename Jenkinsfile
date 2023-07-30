@@ -55,17 +55,17 @@ pipeline {
 
         stage('Push Docker Image to ECR') {
             steps {
-                // Authenticate Docker with ECR using AWS CLI
-                sh("${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com")
+                script {
+                    // Authenticate Docker with ECR
+                    sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-                // Extract the ECR repository URL without the "https://" part
-                def ecrRepoURL = ECR_URL.replaceFirst("https://", "")
+                    // Tag the Docker image with ECR repository URI
+                    def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
+                    sh "${DOCKER_PATH} tag my-docker-image ${ecrRepoUriWithTag}"
 
-                // Tag the built Docker image with the ECR repository URL and 'latest' tag
-                sh("${DOCKER_PATH} tag my-docker-image:latest ${ecrRepoURL}:latest")
-
-                // Push the Docker image to ECR
-                sh("${DOCKER_PATH} push ${ecrRepoURL}:latest")
+                    // Push the Docker image to ECR
+                    sh "${DOCKER_PATH} push ${ecrRepoUriWithTag}"
+                }
             }
         }
 
