@@ -75,40 +75,58 @@ pipeline {
             }
         }
 
-            stage('Terraform Init') {
-        steps {
-            script {
-            // Change directory to the workspace where main.tf is present
-            dir("${WORKSPACE}") {
-                // Execute terraform init using the provided binary path
-                sh "${TERRAFORM_PATH} init"
+        stage('Terraform Init') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}") {
+                        // Execute terraform init using the provided binary path
+                        sh "${TERRAFORM_PATH} init"
+                    }
+                }
             }
-            }
-        }
         }
 
         stage('Terraform Plan') {
-        steps {
-            script {
-            // Change directory to the workspace where main.tf is present
-            dir("${WORKSPACE}") {
-                // Execute terraform plan and save the output to a plan file
-                sh "${TERRAFORM_PATH} plan -out=tfplan"
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}") {
+                        // Execute terraform plan and save the output to a plan file
+                        sh "${TERRAFORM_PATH} plan -out=tfplan"
+                    }
+                }
             }
-            }
-        }
         }
 
         stage('Terraform Apply') {
-        steps {
-            script {
-            // Change directory to the workspace where main.tf is present
-            dir("${WORKSPACE}") {
-                // Execute terraform apply using the plan file generated from the plan stage
-                sh "${TERRAFORM_PATH} apply tfplan"
-            }
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}") {
+                        // Execute terraform apply using the plan file generated from the plan stage
+                        sh "${TERRAFORM_PATH} apply tfplan"
+                    }
+                }
             }
         }
+
+        stage('Terraform Destroy (Manual Approval)') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}") {
+                        // Execute terraform destroy and save the output to a plan file
+                        sh "${TERRAFORM_PATH} destroy -auto-approve -var 'aws_region=${AWS_REGION}'"
+                    }
+                }
+            }
+
+            // Adding manual approval input for Terraform destroy step
+            input {
+                message "This will destroy the infrastructure. Are you sure you want to continue?"
+                ok "Yes, I'm sure."
+            }
         }
     }
 }

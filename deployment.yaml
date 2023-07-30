@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-deployment-name
+  labels:
+    app: your-app-label
+spec:
+  replicas: 3  # Number of desired replicas
+  selector:
+    matchLabels:
+      app: your-app-label
+  template:
+    metadata:
+      labels:
+        app: your-app-label
+    spec:
+      containers:
+        - name: your-container-name
+          image: <your-ecr-repository-uri>:<tag>
+          ports:
+            - containerPort: 80  # Expose the container port your application listens on
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: your-service-name
+spec:
+  type: LoadBalancer
+  selector:
+    app: your-app-label
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
