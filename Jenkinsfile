@@ -106,10 +106,25 @@ pipeline {
                     dir("${WORKSPACE}") {
                         // Execute terraform apply using the plan file generated from the plan stage
                         sh "${TERRAFORM_PATH} apply tfplan"
+
+                        K8S_PUBLIC_IP = sh(returnStdout: true, script: "${TERRAFORM_PATH} output k8s_public_ip").trim()
                     }
                 }
             }
         }
+
+        stage('Connect to EC2 Instance') {
+            steps {
+                // SSH into the EC2 instance and execute commands remotely
+                sh "ssh -o StrictHostKeyChecking=no -i /path/to/your/ssh/private/key.pem ec2-user@${K8S_PUBLIC_IP} 'echo Hello from Jenkins'"
+                // Replace '/path/to/your/ssh/private/key.pem' with the actual path to your SSH private key file.
+
+                // You can execute other commands on the EC2 instance using SSH as needed.
+                // For example, deploying your application, running setup scripts, etc.
+            }
+        }
+
+
 
         stage('Terraform Destroy (Manual Approval)') {
             steps {
