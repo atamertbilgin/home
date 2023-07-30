@@ -126,43 +126,58 @@ pipeline {
                 script {
                     def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
                     sh """echo 'apiVersion: apps/v1
-                        kind: Deployment
-                        metadata:
-                        name: atamert-bilgin-portfolio
-                        labels:
-                            app: my-web-app
-                        spec:
-                        replicas: 2  # Number of desired replicas
-                        selector:
-                            matchLabels:
-                            app: my-web-app
-                        template:
-                            metadata:
-                            labels:
-                                app: my-web-app
-                            spec:
-                            containers:
-                                - name: your-container-name
-                                image: ${ecrRepoUriWithTag}
-                                ports:
-                                    - containerPort: 80  # Expose the container port your application listens on
-                        ---
-                        apiVersion: v1
-                        kind: Service
-                        metadata:
-                        name: your-service-name
-                        spec:
-                        type: LoadBalancer
-                        selector:
-                            app: my-web-app
-                        ports:
-                            - protocol: TCP
-                            port: 80
-                            targetPort: 80
-                        ' > deployment.yaml"""
+    kind: Deployment
+    metadata:
+    name: atamert-bilgin-portfolio
+    labels:
+        app: my-web-app
+    spec:
+    replicas: 2  # Number of desired replicas
+    selector:
+        matchLabels:
+        app: my-web-app
+    template:
+        metadata:
+        labels:
+            app: my-web-app
+        spec:
+        containers:
+            - name: your-container-name
+            image: ${ecrRepoUriWithTag}
+            ports:
+                - containerPort: 80  # Expose the container port your application listens on
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+    name: your-service-name
+    spec:
+    type: LoadBalancer
+    selector:
+        app: my-web-app
+    ports:
+        - protocol: TCP
+        port: 80
+        targetPort: 80
+    ' > deployment.yaml"""
                             }
                         }
                     }
+
+        stage('Create minikube') {
+            steps {
+                // Sleep for 20 seconds
+                sh """${SLEEP_PATH} 180"""
+
+                // SSH into the EC2 instance and execute commands remotely
+                sh """
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                    sudo cd ~;
+                    scp -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem /Users/atamertbilgin/.jenkins/workspace/portfolio/deployment.yaml .;
+                    minikube start;'
+                """
+            }
+        }
 
 
         stage('Terraform Destroy (Manual Approval)') {
