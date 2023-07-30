@@ -53,26 +53,45 @@ pipeline {
             }
         }
 
-        stage('Push to ECR') {
+        stage('Creating the Deployment.yaml for k8s') {
             steps {
-                // Authenticate Docker with ECR using AWS CLI credentials configured on Jenkins machine
-                sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
-                // Check if the image with the "latest" tag exists in the ECR repository
                 script {
-                    def imageExists = sh(
-                        script: "${AWS_PATH} ecr describe-images --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION} --image-ids imageTag=latest",
-                        returnStatus: true
-                    )
-                    if (imageExists == 0) {
-                        echo "Image with 'latest' tag already exists in ECR. Skipping push."
-                    } else {
-                        // Tag the Docker image for ECR
-                        sh "${DOCKER_PATH} tag my-docker-image:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
-
-                        // Push the Docker image to ECR
-                        sh "${DOCKER_PATH} push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
-                    }
+                    def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
+                    sh """echo 'apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+        name: atamert-bilgin-portfolio
+        labels:
+            app: my-web-app
+        spec:
+        replicas: 2  # Number of desired replicas
+        selector:
+            matchLabels:
+            app: my-web-app
+        template:
+            metadata:
+            labels:
+                app: my-web-app
+            spec:
+            containers:
+                - name: your-container-name
+                image: ${ecrRepoUriWithTag}
+                ports:
+                    - containerPort: 80  # Expose the container port your application listens on
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+        name: your-service-name
+        spec:
+        type: LoadBalancer
+        selector:
+            app: my-web-app
+        ports:
+            - protocol: TCP
+            port: 80
+            targetPort: 80
+        ' > deployment.yaml"""
                 }
             }
         }
@@ -141,6 +160,46 @@ pipeline {
                     sudo install minikube-linux-amd64 /usr/local/bin/minikube;
                     sudo usermod -aG docker \$USER && newgrp docker'
                 """
+            }
+        }
+
+        stage('Creating the Deployment.yaml for k8s') {
+            steps {
+                sh """echo 'apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+        name: atamert-bilgin-portfolio
+        labels:
+            app: my-web-app
+        spec:
+        replicas: 2  # Number of desired replicas
+        selector:
+            matchLabels:
+            app: my-web-app
+        template:
+            metadata:
+            labels:
+                app: my-web-app
+            spec:
+            containers:
+                - name: your-container-name
+                image: <your-ecr-repository-uri>:<tag>
+                ports:
+                    - containerPort: 80  # Expose the container port your application listens on
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+        name: your-service-name
+        spec:
+        type: LoadBalancer
+        selector:
+            app: my-web-app
+        ports:
+            - protocol: TCP
+            port: 80
+            targetPort: 80
+        ' > deployment.yaml"""
             }
         }
 
