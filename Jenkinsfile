@@ -14,6 +14,7 @@ pipeline {
         AWS_PATH = "/usr/local/bin/aws"
         TERRAFORM_PATH = "/opt/homebrew/bin/terraform"
         SSH_PATH = "/usr/bin/ssh"
+        SLEEP_PATH = "/bin/sleep"
     }
 
     stages {
@@ -116,8 +117,10 @@ pipeline {
 
         stage('Connect to EC2 Instance') {
             steps {
-        // SSH into the EC2 instance and execute commands remotely
-                sh 'sleep 20'
+                // Sleep for 20 seconds
+                sh """${SLEEP_PATH} 20"""
+
+                // SSH into the EC2 instance and execute commands remotely
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
                     sudo yum update -y
@@ -138,9 +141,8 @@ pipeline {
                     && sudo usermod -aG docker \$USER && newgrp docker
                     && minikube start'
                 """
-             }
-    }
-
+            }
+        }
 
 
         stage('Terraform Destroy (Manual Approval)') {
