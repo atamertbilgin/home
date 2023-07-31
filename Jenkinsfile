@@ -192,7 +192,7 @@ pipeline {
             }
         }
 
-        stage('Connect to EC2 Instance') {
+        stage('Pass the AWS credentials') {
             steps {
                 // Sleep for 20 seconds
                 sh """${SLEEP_PATH} 20"""
