@@ -151,13 +151,15 @@ pipeline {
         stage('Transfer Deployment YAML') {
             steps {
                 script {
-                    // Change directory to the workspace
-                    dir("${WORKSPACE}") {
-                        sh "scp -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem /Users/atamertbilgin/.jenkins/workspace/portfolio/deployment.yaml ~/"
-                    }
+                    // Transfer the deployment.yaml file to the EC2 instance using SCP
+                    sh """
+                        scp -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem \
+                        /Users/atamertbilgin/.jenkins/workspace/portfolio/deployment.yaml ec2-user@${K8S_PUBLIC_IP}:~/deployment.yaml
+                    """
                 }
             }
         }
+
 
         stage('Create minikube') {
             steps {
