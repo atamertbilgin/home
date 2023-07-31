@@ -148,48 +148,18 @@ pipeline {
             }
         }
 
-        stage('Creating the Deployment.yaml for k8s') {
+        stage('Transfer Deployment YAML') {
             steps {
-                script {
-                    def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
-                    sh """echo 'apiVersion: apps/v1
-kind: Deployment
-metadata:
-name: atamert-bilgin-portfolio
-labels:
-    app: my-web-app
-spec:
-replicas: 2  # Number of desired replicas
-selector:
-    matchLabels:
-    app: my-web-app
-template:
-    metadata:
-    labels:
-        app: my-web-app
-    spec:
-    containers:
-        - name: abilgin-portfolio-image
-        image: ${ecrRepoUriWithTag}
-        ports:
-            - containerPort: 80  # Expose the container port your application listens on
----
-apiVersion: v1
-kind: Service
-metadata:
-name: your-service-name
-spec:
-type: LoadBalancer
-selector:
-    app: my-web-app
-ports:
-    - protocol: TCP
-    port: 80
-    targetPort: 80
-    ' > deployment.yaml"""
-                            }
-                        }
-                    }
+
+                // SSH into the EC2 instance and copy the deployment.yaml file to the home directory
+                sh """
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                    scp -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem /Users/atamertbilgin/.jenkins/workspace/portfolio/deployment.yaml ~/;
+                    '
+                """
+            }
+        }
+
 
         stage('Create minikube') {
             steps {
