@@ -42,6 +42,10 @@ resource "aws_instance" "k8s_instance" {
 
   vpc_security_group_ids = [aws_security_group.k8s_sg.id]
 
+  root_block_device {
+    volume_size = 16
+  }
+
   tags = {
     Name = "K8s Instance"
   }
