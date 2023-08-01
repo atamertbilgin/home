@@ -132,10 +132,24 @@ pipeline {
                     chmod +x kubectl;
                     mkdir -p ~/.local/bin;
                     mv ./kubectl ~/.local/bin/kubectl;
-                    sudo usermod -aG docker \$USER && newgrp docker'
+                    sudo usermod -aG docker \$USER && newgrp docker;
+                    cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+        [kubernetes]
+        name=Kubernetes
+        baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+        enabled=1
+        gpgcheck=1
+        gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        exclude=kubelet kubeadm kubectl
+        EOF
+                    sudo setenforce 0;
+                    sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config;
+                    sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes;
+                    sudo systemctl enable --now kubelet'
                 """
             }
         }
+
 
         stage('Transfer Deployment YAML') {
             steps {
@@ -170,12 +184,12 @@ pipeline {
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
-                    docker_ecr_login=\$(aws ecr get-login-password --region us-east-1 | base64 -w0);
-                    echo -n "\$docker_ecr_login" | base64 -d | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
+                    docker_ecr_login=$(aws ecr get-login-password --region us-east-1 | base64 -w0);
+                    echo -n "$docker_ecr_login" | base64 -d | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
                     kubectl create secret docker-registry regcred \
                         --docker-server=611289949201.dkr.ecr.us-east-1.amazonaws.com \
                         --docker-username=AWS \
-                        --docker-password=\$(aws ecr get-login-password --region us-east-1) \
+                        --docker-password=$(aws ecr get-login-password --region us-east-1) \
                         --docker-email=atamertbilgin@gmail.com
                     '
                 """
