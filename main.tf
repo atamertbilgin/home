@@ -26,12 +26,12 @@ resource "aws_security_group" "k8s_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow Kubernetes API server access and self-access
+  # Allow Kubernetes API server access from the EC2 instance itself
   ingress {
     from_port       = 6443
     to_port         = 6443
     protocol        = "tcp"
-    security_groups = [self.id]  # Self-reference for access from the same security group (EC2 instance to itself)
+    self            = true  # Allow access from the EC2 instance itself
   }
 
   # Allow communication between Kubernetes components on the node (self-access)
@@ -39,7 +39,7 @@ resource "aws_security_group" "k8s_sg" {
     from_port       = 10250
     to_port         = 10255
     protocol        = "tcp"
-    security_groups = [self.id]  # Self-reference for access from the same security group (EC2 instance to itself)
+    self            = true  # Allow access from the EC2 instance itself
   }
 
   egress {
