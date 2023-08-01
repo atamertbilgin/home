@@ -32,6 +32,48 @@ resource "aws_security_group" "k8s_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
   }
+
+    # Allow Kubernetes API server access
+  ingress {
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow access from anywhere (consider restricting this to specific IP ranges)
+  }
+
+  # Allow communication between Kubernetes nodes (if applicable)
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
+    security_groups = [aws_security_group.k8s_sg.id]  # Allow access from the same security group (Kubernetes nodes)
+  }
+
+  # Allow communication between Kubernetes nodes for health checks (if applicable)
+  ingress {
+    from_port   = 10255
+    to_port     = 10255
+    protocol    = "tcp"
+    security_groups = [aws_security_group.k8s_sg.id]  # Allow access from the same security group (Kubernetes nodes)
+  }
+
+  # Allow communication between Kubernetes nodes and kube-proxy (if applicable)
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    security_groups = [aws_security_group.k8s_sg.id]  # Allow access from the same security group (Kubernetes nodes)
+  }
+
+  # Allow communication for kubelet to connect to the API server
+  ingress {
+    from_port   = 10251
+    to_port     = 10251
+    protocol    = "tcp"
+    security_groups = [aws_security_group.k8s_sg.id]  # Allow access from the same security group (Kubernetes nodes)
+  }
+}
+
 }
 
 resource "aws_instance" "k8s_instance" {
