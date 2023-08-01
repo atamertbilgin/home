@@ -66,17 +66,26 @@ pipeline {
             }
         }
 
-        // stage('Connect to EC2 Instance') {
-        //     steps {
-        //         // Sleep for 20 seconds
-        //         sh """${SLEEP_PATH} 20"""
+        stage('Connect to EC2 Instance') {
+            steps {
+                // Sleep for 20 seconds
+                sh """${SLEEP_PATH} 20"""
 
-        //         // SSH into the EC2 instance and execute commands remotely
-        //         sh """
-        //             $${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@\${K8S_PUBLIC_IP} '
-                    
-        //     }
-        // }
+                // SSH into the EC2 instance and execute commands remotely
+                sh """
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                    sudo yum update -y;
+                    sudo dnf update -y;
+                    sudo dnf install -y docker;
+                    sudo systemctl start docker;
+                    sudo systemctl enable docker;
+                    sudo usermod -aG docker $USER;
+                    sudo yum install git -y;
+                    git clone https://github.com/atamertbilgin/home.git;
+                    cd ~/home
+                    '
+            }
+        }
 
         stage('Terraform Destroy (Manual Approval)') {
             steps {

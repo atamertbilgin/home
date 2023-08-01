@@ -4,13 +4,6 @@
 sleep 20
 
 # Update the system and install necessary packages
-sudo yum update -y
-sudo dnf update -y
-sudo dnf install -y docker
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo usermod -aG docker $USER
-sudo yum install git -y
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 chmod +x kubectl
@@ -32,8 +25,15 @@ sudo systemctl enable --now kubelet
 # Sleep for 180 seconds (3 minutes)
 sleep 180
 
+
+sudo usermod -aG docker $USER
+sudo systemctl restart docker
+kubectl config set-cluster abilgin --server=localhost
+kubectl config set-context abilgin --cluster=abilgin --user=kubectl
+kubectl config use-context abilgin
+sudo systemctl start kube-apiserver
 # Login to AWS ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com
 
 # Create and use Docker registry secret in Kubernetes
 kubectl create secret docker-registry regcred \
@@ -43,9 +43,8 @@ kubectl create secret docker-registry regcred \
     --docker-email=atamertbilgin@gmail.com
 
 # Clone Git repository, build and push Docker image to ECR
-cd ~
-git clone https://github.com/atamertbilgin/home.git
-cd home
 docker build -t my-docker-image .
 docker tag my-docker-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
 docker push 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
+
+kubectl config set-cluster abilgin --server=localhost
