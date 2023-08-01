@@ -74,8 +74,6 @@ resource "aws_security_group" "k8s_sg" {
   }
 }
 
-}
-
 resource "aws_instance" "k8s_instance" {
   ami           = "ami-0f34c5ae932e6f0e4"  # Replace with the AMI ID for your desired Jenkins image
   instance_type = "t3a.medium"  # Replace with your desired instance type
