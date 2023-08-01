@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: portfolio
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: abilgin-portfolio-image
@@ -12,6 +12,7 @@ spec:
       labels:
         app: abilgin-portfolio-image
     spec:
+      hostNetwork: true                # Enabling "host network" mode for the pod
       containers:
         - name: abilgin-portfolio-image
           image: 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
@@ -24,12 +25,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: abilgin-alb
+  name: abilgin-nodeport
 spec:
-  type: LoadBalancer
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      nodePort: 31004   # Specify the nodePort you want to use (in the range 30000-32767)
   selector:
     app: abilgin-portfolio-image
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
+
