@@ -66,17 +66,17 @@ pipeline {
             }
         }
 
-        stage('Connect to EC2 Instance') {
-            steps {
-                // Sleep for 20 seconds
-                sh """${SLEEP_PATH} 20"""
+        // stage('Connect to EC2 Instance') {
+        //     steps {
+        //         // Sleep for 20 seconds
+        //         sh """${SLEEP_PATH} 20"""
 
-                // SSH into the EC2 instance and execute commands remotely
-                sh """
-                    $${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@\${K8S_PUBLIC_IP} '
+        //         // SSH into the EC2 instance and execute commands remotely
+        //         sh """
+        //             $${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@\${K8S_PUBLIC_IP} '
                     
-            }
-        }
+        //     }
+        // }
 
         stage('Terraform Destroy (Manual Approval)') {
             steps {
