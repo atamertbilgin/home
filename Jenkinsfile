@@ -37,39 +37,39 @@ pipeline {
             }
         }
 
-        stage('Create ECR Repository') {
-            steps {
-                // Check if the ECR repository already exists
-                script {
-                    def ecrRepoExists = sh(
-                        script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
-                        returnStatus: true
-                    )
-                    if (ecrRepoExists == 0) {
-                        echo "ECR repository already exists. Skipping creation."
-                    } else {
-                        // Use the AWS CLI to create the ECR repository
-                        sh "${AWS_PATH} ecr create-repository --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}"
-                    }
-                }
-            }
-        }
+        // stage('Create ECR Repository') {
+        //     steps {
+        //         // Check if the ECR repository already exists
+        //         script {
+        //             def ecrRepoExists = sh(
+        //                 script: "${AWS_PATH} ecr describe-repositories --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}",
+        //                 returnStatus: true
+        //             )
+        //             if (ecrRepoExists == 0) {
+        //                 echo "ECR repository already exists. Skipping creation."
+        //             } else {
+        //                 // Use the AWS CLI to create the ECR repository
+        //                 sh "${AWS_PATH} ecr create-repository --repository-name ${ECR_REPO_NAME} --region ${AWS_REGION}"
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Push Docker Image to ECR') {
-            steps {
-                script {
-                    // Authenticate Docker with ECR
-                    sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        // stage('Push Docker Image to ECR') {
+        //     steps {
+        //         script {
+        //             // Authenticate Docker with ECR
+        //             sh "${AWS_PATH} ecr get-login-password --region ${AWS_REGION} | ${DOCKER_PATH} login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-                    // Tag the Docker image with ECR repository URI
-                    def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
-                    sh "${DOCKER_PATH} tag my-docker-image ${ecrRepoUriWithTag}"
+        //             // Tag the Docker image with ECR repository URI
+        //             def ecrRepoUriWithTag = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest"
+        //             sh "${DOCKER_PATH} tag my-docker-image ${ecrRepoUriWithTag}"
 
-                    // Push the Docker image to ECR
-                    sh "${DOCKER_PATH} push ${ecrRepoUriWithTag}"
-                }
-            }
-        }
+        //             // Push the Docker image to ECR
+        //             sh "${DOCKER_PATH} push ${ecrRepoUriWithTag}"
+        //         }
+        //     }
+        // }
 
 
         stage('Terraform Init') {
@@ -185,6 +185,22 @@ pipeline {
             }
         }
 
+        stage('Deployment') {
+            steps {
+                // SSH into the EC2 instance and execute commands remotely
+                sh """
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                    sudo cd ~;
+                    git clone https://github.com/atamertbilgin/home.git;
+                    cd home;
+                    docker build -t my-docker-image .;
+                    \$(aws ecr get-login --no-include-email --region us-east-1);
+                    aws ecr create-repository --repository-name abilgin-portfolio-image;
+                    docker tag my-docker-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
+                    docker push 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;'
+                """
+            }
+        }
 
 
         stage('Terraform Destroy (Manual Approval)') {
