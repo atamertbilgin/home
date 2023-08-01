@@ -168,24 +168,23 @@ pipeline {
             }
         }
     
-            stage('Docker login and regcred creation') {
+        stage('Docker login and regcred creation') {
             steps {
-
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
-                    sudo cd ~;
-                    docker-ecr-login=$(aws ecr get-login-password --region us-east-1);
-                    echo -n "$docker-ecr-login" | base64 -w0;
-                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
+                    docker_ecr_login=\$(aws ecr get-login-password --region us-east-1 | base64 -w0);
+                    echo -n "\$docker_ecr_login" | base64 -d | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
                     kubectl create secret docker-registry regcred \
-    --docker-server=611289949201.dkr.ecr.us-east-1.amazonaws.com \
-    --docker-username=AWS \
-    --docker-password=$(aws ecr get-login-password --region us-east-1) \
-    --docker-email=atamertbilgin@gmail.com
+                        --docker-server=611289949201.dkr.ecr.us-east-1.amazonaws.com \
+                        --docker-username=AWS \
+                        --docker-password=\$(aws ecr get-login-password --region us-east-1) \
+                        --docker-email=atamertbilgin@gmail.com
+                    '
                 """
             }
         }
+
 
 
         stage('Terraform Destroy (Manual Approval)') {
