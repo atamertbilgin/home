@@ -27,15 +27,6 @@ pipeline {
             }
         }
 
-        stage('Set AWS Credentials') {
-            steps {
-                script {
-                    AWS_ACCESS_KEY_ID = sh(script: '${AWS_PATH} configure get aws_access_key_id', returnStdout: true).trim()
-                    AWS_SECRET_ACCESS_KEY = sh(script: '${AWS_PATH} configure get aws_secret_access_key', returnStdout: true).trim()
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 // Navigate to the Jenkins workspace where the repository was cloned
@@ -177,34 +168,6 @@ pipeline {
             }
         }
 
-        stage('Pass AWS Credentials to EC2') {
-            steps {
-                script {
-                    // SSH into the EC2 instance and execute commands remotely
-                    sh """
-                        ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
-                        echo "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> ~/.bashrc
-                        echo "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> ~/.bashrc
-                        source ~/.bashrc
-                        '
-                    """
-                }
-            }
-        }
-
-        stage('Pass the AWS credentials') {
-            steps {
-                // Sleep for 20 seconds
-                sh """${SLEEP_PATH} 20"""
-
-                // SSH into the EC2 instance and execute commands remotely
-                sh """
-                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
-                    sudo aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID;
-                    sudo aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
-                """
-            }
-        }
 
         stage('Terraform Destroy (Manual Approval)') {
             steps {
