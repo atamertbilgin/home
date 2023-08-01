@@ -117,7 +117,7 @@ pipeline {
 
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
-                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@\${K8S_PUBLIC_IP} '
+                    $${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@\${K8S_PUBLIC_IP} '
                     sudo yum update -y;
                     sudo dnf update;
                     sudo dnf install -y docker;
