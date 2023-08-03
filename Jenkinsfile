@@ -72,17 +72,14 @@ stage('Terraform Init ec2') {
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${EC2_PUBLIC_IP} '
                     sudo yum update -y;
+                    sudo yum install -y docker;
+                    sudo service docker start ;
+                    sudo systemctl enable docker.service;
+                    sudo systemctl status docker.service;
                     sudo yum install git -y;
                     cd /home/ec2-user;
                     git clone https://github.com/atamertbilgin/home.git;
                     cd /home/ec2-user/home;
-                    sudo yum install -y docker;
-                    sudo usermod -a -G docker ec2-user;
-                    sudo usermod -aG docker ec2-user;
-                    id ec2-user;
-                    newgrp docker;
-                    sudo systemctl restart docker;
-                    sudo systemctl start docker;
                     docker build -t abilgin-portfolio-image:latest .;
                     docker tag abilgin-portfolio-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
                     aws ecr create-repository --repository-name abilgin-portfolio-image --region us-east-1;
