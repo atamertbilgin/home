@@ -59,6 +59,7 @@ pipeline {
                         sh "${TERRAFORM_PATH} apply tfplan"
 
                         K8S_PUBLIC_IP = sh(returnStdout: true, script: "${TERRAFORM_PATH} output k8s_public_ip").trim()
+                        K8S_PUBLIC_IP2 = sh(returnStdout: true, script: "${TERRAFORM_PATH} output k8s_public_ip2").trim()
                     }
                 }
             }
@@ -67,12 +68,26 @@ pipeline {
         stage('Connect to EC2 Instance') {
             steps {
                 // Sleep for 20 seconds
-                sh """${SLEEP_PATH} 20"""
+                sh """${SLEEP_PATH} 300"""
 
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${K8S_PUBLIC_IP} '
-                    echo "Hello World"
+                    sudo apt update;
+                    sudo apt install python3 python3-pip;
+                    sudo pip3 install awscli;
+                    sudo apt install git;
+                    aws configure set aws_access_key_id xxxxxxxxxx;
+                    aws configure set aws_secret_access_key xxxxxxxx;
+                    aws configure set default.region us-east-1
+                    git clone https://github.com/atamertbilgin/home.git;
+                    kubectl create secret docker-registry regcred \
+    --docker-server=611289949201.dkr.ecr.us-east-1.amazonaws.com \
+    --docker-username=AWS \
+    --docker-password=$(aws ecr get-login-password --region us-east-1) \
+    --docker-email=atamertbilgin@gmail.com;
+                    cd ~/home;
+                    kubectl apply -f deployment.yaml
                     '
                 """
             }
