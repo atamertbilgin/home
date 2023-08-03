@@ -75,15 +75,9 @@ pipeline {
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${K8S_PUBLIC_IP} '
                     sudo apt update;
                     sudo apt install python3 python3-pip;
-                    sudo pip3 install awscli;
                     sudo apt install git;
-                    aws configure set aws_access_key_id AKIAY4U5YMQIZRSTQZUK;
-                    aws configure set aws_secret_access_key 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;
-                    aws configure set default.region us-east-1
                     git clone https://github.com/atamertbilgin/home.git;
                     cd ~/home;
-                    chmod +x setup-k8s-script.sh;
-                    ./setup-k8s-script.sh;
                     kubectl apply -f deployment.yaml
                     '
                 """
