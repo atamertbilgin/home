@@ -81,11 +81,11 @@ pipeline {
                     aws configure set aws_secret_access_key xxxxxxxx;
                     aws configure set default.region us-east-1
                     git clone https://github.com/atamertbilgin/home.git;
-                    kubectl create secret docker-registry regcred \
-    --docker-server=611289949201.dkr.ecr.us-east-1.amazonaws.com \
-    --docker-username=AWS \
-    --docker-password=$(aws ecr get-login-password --region us-east-1) \
-    --docker-email=atamertbilgin@gmail.com;
+                    kubectl create secret docker-registry regcred \\
+                        --docker-server=611289949201.dkr.ecr.us-east-1.amazonaws.com \\
+                        --docker-username=AWS \\
+                        --docker-password=$(aws ecr get-login-password --region us-east-1) \\
+                        --docker-email=atamertbilgin@gmail.com;
                     cd ~/home;
                     kubectl apply -f deployment.yaml
                     '
