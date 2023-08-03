@@ -76,7 +76,7 @@ stage('Terraform Init ec2') {
                     cd /home/ec2-user;
                     git clone https://github.com/atamertbilgin/home.git;
                     cd /home/ec2-user/home;
-                    sudo yum install docker;
+                    sudo yum install -y docker;
                     sudo usermod -a -G docker ec2-user;
                     id ec2-user;
                     newgrp docker;
