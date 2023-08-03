@@ -84,7 +84,7 @@ stage('Terraform Init ec2') {
                     sudo docker tag abilgin-portfolio-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
                     aws ecr create-repository --repository-name abilgin-portfolio-image --region us-east-1;
                     aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
-                    docker push 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
+                    sudo docker push 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
                     '
                 """
             }
