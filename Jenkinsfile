@@ -80,10 +80,10 @@ stage('Terraform Init ec2') {
                     cd /home/ec2-user;
                     git clone https://github.com/atamertbilgin/home.git;
                     cd /home/ec2-user/home;
-                    docker build -t abilgin-portfolio-image:latest .;
-                    docker tag abilgin-portfolio-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
+                    sudo docker build -t abilgin-portfolio-image:latest .;
+                    sudo docker tag abilgin-portfolio-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
                     aws ecr create-repository --repository-name abilgin-portfolio-image --region us-east-1;
-                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
+                    aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
                     docker push 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
                     '
                 """
