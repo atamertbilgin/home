@@ -63,18 +63,6 @@ stage('Terraform Init ec2') {
             }
         }
 
-        stage('Terraform Destroy k8s (Manual Approval)') {
-            steps {
-                script {
-                    // Change directory to the workspace where main.tf is present
-                    dir("${WORKSPACE}") {
-                        // Execute terraform destroy and save the output to a plan file
-                        sh "${TERRAFORM_PATH} destroy -auto-approve"
-                    }
-                }
-            }
-        }
-
         stage('Installations on EC2 Build Image & Push to ECR') {
             steps {
                 // Sleep for 20 seconds
@@ -83,9 +71,36 @@ stage('Terraform Init ec2') {
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${EC2_PUBLIC_IP} '
-                    
+                    sudo yum update -y;
+                    sudo yum install git -y;
+                    cd /home/ec2-user;
+                    git clone https://github.com/atamertbilgin/home.git;
+                    cd /home/ec2-user/home;
+                    sudo yum install docker;
+                    sudo usermod -a -G docker ec2-user;
+                    id ec2-user;
+                    newgrp docker;
+                    sudo systemctl start docker;
+                    docker build -t abilgin-portfolio-image:latest .;
+                    docker tag abilgin-portfolio-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
+                    aws ecr create-repository --repository-name abilgin-portfolio-image --region us-east-1;
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 611289949201.dkr.ecr.us-east-1.amazonaws.com;
+                    docker push 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
                     '
                 """
+            }
+        }
+
+
+        stage('Terraform Destroy ec2') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}") {
+                        // Execute terraform destroy and save the output to a plan file
+                        sh "${TERRAFORM_PATH} destroy -auto-approve"
+                    }
+                }
             }
         }
 
@@ -146,18 +161,6 @@ stage('Terraform Init ec2') {
                 """
             }
         }
-
-        // stage('Building the Image and Pushing to ECR') {
-        //     steps {
-
-        //         // SSH into the EC2 instance and execute commands remotely
-        //         sh """
-        //             ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${K8S_PUBLIC_IP} '
-        //             kubectl apply -f deployment.yaml
-        //             '
-        //         """
-        //     }
-        // }
 
         stage('Terraform Destroy k8s (Manual Approval)') {
             steps {
