@@ -65,7 +65,7 @@ pipeline {
             }
         }
 
-        stage('Connect to EC2 Instance') {
+        stage('Installations on Ubuntu') {
             steps {
                 // Sleep for 20 seconds
                 sh """${SLEEP_PATH} 300"""
@@ -77,8 +77,8 @@ pipeline {
                     sudo apt install python3 python3-pip;
                     sudo pip3 install awscli;
                     sudo apt install git;
-                    aws configure set aws_access_key_id xxxxxxxxxx;
-                    aws configure set aws_secret_access_key xxxxxxxx;
+                    aws configure set aws_access_key_id AKIAY4U5YMQIZRSTQZUK;
+                    aws configure set aws_secret_access_key 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;
                     aws configure set default.region us-east-1
                     git clone https://github.com/atamertbilgin/home.git;
                     cd ~/home;
@@ -89,6 +89,18 @@ pipeline {
                 """
             }
         }
+
+        // stage('Building the Image and Pushing to ECR') {
+        //     steps {
+
+        //         // SSH into the EC2 instance and execute commands remotely
+        //         sh """
+        //             ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${K8S_PUBLIC_IP} '
+        //             kubectl apply -f deployment.yaml
+        //             '
+        //         """
+        //     }
+        // }
 
         stage('Terraform Destroy (Manual Approval)') {
             steps {
