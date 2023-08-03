@@ -25,8 +25,71 @@ pipeline {
             }
         }
 
+stage('Terraform Init ec2') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}/firstterraform") {
+                        // Execute terraform init using the provided binary path
+                        sh "${TERRAFORM_PATH} init"
+                    }
+                }
+            }
+        }
 
-        stage('Terraform Init') {
+        stage('Terraform Plan ec2') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}/firstterraform") {
+                        // Execute terraform plan and save the output to a plan file
+                        sh "${TERRAFORM_PATH} plan -out=tfplan"
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply ec2') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}/firstterraform") {
+                        // Execute terraform apply using the plan file generated from the plan stage
+                        sh "${TERRAFORM_PATH} apply tfplan"
+
+                        EC2_PUBLIC_IP = sh(returnStdout: true, script: "${TERRAFORM_PATH} output ec2_public_ip").trim()
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Destroy k8s (Manual Approval)') {
+            steps {
+                script {
+                    // Change directory to the workspace where main.tf is present
+                    dir("${WORKSPACE}") {
+                        // Execute terraform destroy and save the output to a plan file
+                        sh "${TERRAFORM_PATH} destroy -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage('Installations on EC2 Build Image & Push to ECR') {
+            steps {
+                // Sleep for 20 seconds
+                sh """${SLEEP_PATH} 20"""
+
+                // SSH into the EC2 instance and execute commands remotely
+                sh """
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${EC2_PUBLIC_IP} '
+                    
+                    '
+                """
+            }
+        }
+
+        stage('Terraform Init k8s') {
             steps {
                 script {
                     // Change directory to the workspace where main.tf is present
@@ -38,7 +101,7 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
+        stage('Terraform Plan k8s') {
             steps {
                 script {
                     // Change directory to the workspace where main.tf is present
@@ -50,7 +113,7 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Terraform Apply k8s') {
             steps {
                 script {
                     // Change directory to the workspace where main.tf is present
@@ -96,7 +159,7 @@ pipeline {
         //     }
         // }
 
-        stage('Terraform Destroy (Manual Approval)') {
+        stage('Terraform Destroy k8s (Manual Approval)') {
             steps {
                 script {
                     // Change directory to the workspace where main.tf is present
