@@ -78,8 +78,10 @@ stage('Terraform Init ec2') {
                     cd /home/ec2-user/home;
                     sudo yum install -y docker;
                     sudo usermod -a -G docker ec2-user;
+                    sudo usermod -aG docker ec2-user;
                     id ec2-user;
                     newgrp docker;
+                    sudo systemctl restart docker;
                     sudo systemctl start docker;
                     docker build -t abilgin-portfolio-image:latest .;
                     docker tag abilgin-portfolio-image:latest 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest;
