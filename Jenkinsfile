@@ -71,7 +71,7 @@ pipeline {
 
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
-                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${K8S_PUBLIC_IP} '
                     echo "Hello World"
                     '
                 """
