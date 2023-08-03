@@ -95,7 +95,7 @@ stage('Terraform Init ec2') {
             steps {
                 script {
                     // Change directory to the workspace where main.tf is present
-                    dir("${WORKSPACE}") {
+                    dir("${WORKSPACE}/firstterraform") {
                         // Execute terraform destroy and save the output to a plan file
                         sh "${TERRAFORM_PATH} destroy -auto-approve"
                     }
