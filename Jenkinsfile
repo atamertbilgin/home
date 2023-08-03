@@ -70,7 +70,7 @@ stage('Terraform Init ec2') {
 
                 // SSH into the EC2 instance and execute commands remotely
                 sh """
-                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ubuntu@${EC2_PUBLIC_IP} '
+                    ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${EC2_PUBLIC_IP} '
                     sudo yum update -y;
                     sudo yum install git -y;
                     cd /home/ec2-user;
