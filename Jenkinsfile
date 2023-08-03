@@ -15,8 +15,6 @@ pipeline {
         TERRAFORM_PATH = "/opt/homebrew/bin/terraform"
         SSH_PATH = "/usr/bin/ssh"
         SLEEP_PATH = "/bin/sleep"
-        AWS_ACCESS_KEY_ID = ""
-        AWS_SECRET_ACCESS_KEY = ""
     }
 
     stages {
@@ -76,6 +74,7 @@ pipeline {
                     ${SSH_PATH} -o StrictHostKeyChecking=no -i /Users/atamertbilgin/.ssh/first-key.pem ec2-user@${K8S_PUBLIC_IP} '
                     echo "Hello World"
                     '
+                """
             }
         }
 
