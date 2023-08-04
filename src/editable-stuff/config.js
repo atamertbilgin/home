@@ -21,11 +21,11 @@ const mainBody = {
     // },
     {
       image: "fa-instagram",
-      url: "https://www.instagram.com/atamert.bilgin//",
+      url: "https://www.instagram.com/atamert.bilgin",
     },
     {
       image: "fa-linkedin",
-      url: "https://www.linkedin.com/in/atamertbilgin//",
+      url: "https://www.linkedin.com/in/atamertbilgin",
     },
     // {
     //   image: "fa-twitter",
