@@ -55,7 +55,7 @@ const about = {
   imageSize: 375,
   message:
     "Devops Engineer & Senior industrial engineer with 1 year bootcamp experience in AWS Devops Engineering. Project experience includes applications of designing and building effective CI/CD pipelines using containerization, orchestration, monitoring, and AWS solutions. Able to use agile methodology as a project management method. A quick learner and analytical thinker.",
-  resume: "https://drive.google.com/file/d/1jO8RymwcDWOePk0uJewT4jVvVSi5R3qw/view?usp=drive_link",
+  resume: "https://drive.google.com/file/d/1TUa3yZHxIVyx7tref2kQ-ekf5jSaiV20/view?usp=drive_link",
 };
 
 // PROJECTS SECTION
