@@ -51,7 +51,7 @@ const mainBody = {
 const about = {
   show: true,
   heading: "About Me",
-  imageLink: require("../editable-stuff/atamertbilgin.png"),
+  imageLink: require("../editable-stuff/hashirshoaeb.png"),
   imageSize: 375,
   message:
     "Devops Engineer & Senior industrial engineer with 1 year bootcamp experience in AWS Devops Engineering. Project experience includes applications of designing and building effective CI/CD pipelines using containerization, orchestration, monitoring, and AWS solutions. Able to use agile methodology as a project management method. A quick learner and analytical thinker.",
