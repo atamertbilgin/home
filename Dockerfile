@@ -22,8 +22,8 @@ FROM nginx:alpine
 # Copy the built React app from the previous stage to the Nginx HTML directory
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port 443 for Nginx
-EXPOSE 443
+# Expose port 80 for Nginx
+EXPOSE 80
 
 # Start Nginx when the container starts
 CMD ["nginx", "-g", "daemon off;"]

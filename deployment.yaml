@@ -17,7 +17,7 @@ spec:
         - name: abilgin-portfolio-image
           image: 611289949201.dkr.ecr.us-east-1.amazonaws.com/abilgin-portfolio-image:latest
           ports:
-            - containerPort: 443
+            - containerPort: 80
       imagePullSecrets:
         - name: regcred
 
@@ -29,8 +29,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 443
-      targetPort: 443
+    - port: 80
+      targetPort: 80
       protocol: TCP
       nodePort: 31004   # Specify the nodePort you want to use (in the range 30000-32767)
   selector:
